@@ -7,6 +7,7 @@ namespace Rover.Services
 {
     public class RoverService : IRoverService
     {
+
         /// <summary>
         /// A set of numbered components are placed on a grid, a rover is placed on a random grid
         /// coordinate and has to pick up the numbered components in ascending order(starting with 1).

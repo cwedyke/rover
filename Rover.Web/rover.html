@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Assembly Rover</title>
+	<meta charset="utf-8" />
+
+    <link rel="stylesheet" href="Content/bootstrap.min.css" />
+    <script src="Scripts/jquery-3.1.1.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+
+    <style>
+        .rover-row {
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="row" style="padding-top:100px;">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            Grid Size: 
+        </div>
+        <div class="col-md-9">
+            <input id="inputGridSize" type="text" />
+        </div>
+    </div>
+    <div class="row rover-row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            Number of Components:
+        </div>
+        <div class="col-md-9">
+            <input id="inputNumberOfComponents" type="text" />
+        </div>
+    </div>
+    <div class="row rover-row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            Component Locations:
+        </div>
+        <div class="col-md-9">
+            
+        </div>
+    </div>
+    <div class="row rover-row">
+        <div class="col-md-1"></div>
+        <div class="col-md-7">
+            <table class="table" id="tableComponentCoords">
+
+            </table>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+    <div class="row rover-row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            Rover Position:
+        </div>
+        <div class="col-md-9">
+            <input id="inputRoverPosition" type="text" />
+        </div>
+    </div>
+    <div class="row rover-row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            Output:
+        </div>
+        <div class="col-md-9">
+            <span id="spanOutput"></span>
+        </div>
+    </div>
+    <div class="row" style="padding-top:30px;">
+        <div class="col-md-1"></div>
+        <div class="col-md-11">
+            <a id="btnProcess" class="btn btn-primary pull-left">Process</a>
+        </div>
+    </div>
+
+
+    <script>
+
+        $("#inputNumberOfComponents").on('input', function (e) {
+            var $compNum = $("#inputNumberOfComponents").val();
+
+            if (!isNumeric($compNum)) { // validate isNumeric before continuing.
+                $("#inputNumberOfComponents").addClass("bg-danger");
+                return;
+            }
+            else {
+                $("#inputNumberOfComponents").removeClass("bg-danger");
+            }
+
+            // clear out rows before appending.
+            $("#tableComponentCoords").empty();
+
+            for (var i = 1 ; (i - 1) < $compNum ; ++i) {
+                $('#tableComponentCoords').append('<tr><td class="text-center rover-row">Component ' + i +
+                    ':</td><td class="rover-row"><input id="component' + i +
+                    '" type="text" /></td></tr>');
+            }
+        });
+
+        $("#btnProcess").click(function () {
+            var $gridSize = $("#inputGridSize").val(),
+                $compNum  = $("#inputNumberOfComponents").val(),
+                $roverPos = $("#inputRoverPosition").val(),
+                $compList = [];
+
+            // start validate fields have values. api will validate format
+            var $isValid = true;
+            if (isNull("inputGridSize", $gridSize) |
+                isNull("inputNumberOfComponents", $compNum) |
+                isNull("inputRoverPosition", $roverPos)) {
+
+                $isValid = false;
+            }
+
+            for (var i = 1 ; (i - 1) < $compNum ; ++i) {
+                $compList.push($("#component" + i).val())
+
+                if (isNull("component" + i, $("#component" + i).val()))
+                    $isValid = false;
+            }
+            if (!$isValid)
+                return;
+            // end validation
+
+
+            var $rover = { GridSize: $gridSize, RoverPosition: $roverPos, Components: $compList };
+
+            $.ajax({
+                type: "POST",
+                url: "api/Rover",
+                data: $rover,
+                success: function (data) {
+                    $("#spanOutput").text(data.join(''));
+                }
+            });
+        });
+
+        function isNull(id, value) {
+            if (value.trim() === "") {
+                $("#" + id).addClass("bg-danger");
+                return true;
+            }
+            else {
+                $("#" + id).removeClass("bg-danger");
+                return false;
+            }
+        }
+
+        function isNumeric(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+    </script>
+</body>
+</html>
